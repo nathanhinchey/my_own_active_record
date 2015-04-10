@@ -5,14 +5,14 @@ require 'active_support/inflector'
 
 class SQLObject
   def self.columns
-    query = <<-SQL
+    columns_query = <<-SQL
       SELECT
         *
       FROM
         #{self.table_name}
     SQL
     # p self.table_name
-    DBConnection.execute2(query).first.map(&:to_sym)
+    DBConnection.execute2(columns_query).first.map(&:to_sym)
   end
 
   def self.finalize!
@@ -32,17 +32,17 @@ class SQLObject
   end
 
   def self.table_name
-    @table_name ||= self.name.downcase.pluralize
+    @table_name || self.name.downcase.pluralize
   end
 
   def self.all
-    query = <<-SQL
+    all_query = <<-SQL
     SELECT
       *
     FROM
       #{table_name}
     SQL
-    results = DBConnection.execute(query)
+    results = DBConnection.execute(all_query)
     parse_all(results)
   end
 
@@ -59,7 +59,7 @@ class SQLObject
   end
 
   def self.find(id)
-    query = <<-SQL
+    find_query = <<-SQL
       SELECT
         *
       FROM
@@ -68,7 +68,7 @@ class SQLObject
         id = #{id}
     SQL
 
-    result = DBConnection.execute(query)
+    result = DBConnection.execute(find_query)
     parse_all(result).first
   end
 
@@ -95,7 +95,7 @@ class SQLObject
 
   def insert
     all_columns = self.class.columns
-    query = <<-SQL
+    insert_query = <<-SQL
       INSERT INTO
         #{self.class.table_name} (#{all_columns.join(", ")})
       VALUES
@@ -104,25 +104,30 @@ class SQLObject
 
     attributes[:id] = DBConnection.last_insert_row_id
 
-    DBConnection.execute(query, *attribute_values)
+    DBConnection.execute(insert_query, *attribute_values)
   end
 
   def update
-    cols_with_vals = ""
+    all_columns = self.class.columns
+    cols_with_question_marks = all_columns.join(' = ?,') << " = ?"
 
-    query <<-SQL
+    update_query = <<-SQL
       UPDATE
         #{self.class.table_name}
       SET
-        #{cols_with_vals}
+        #{cols_with_question_marks}
       WHERE
         id = #{self.id}
     SQL
 
-
+    DBConnection.execute(update_query, *attribute_values)
   end
 
   def save
-    # ...
+    if self.id == nil
+      insert
+    else
+      update
+    end
   end
 end
