@@ -1,0 +1,6 @@
+set_bg_color () {
+# color values are in '{R, G, B, A}' format, all 16-bit unsigned integers (0-65535)
+osascript -e "tell application \"Terminal\" to set background color of window 1 to $1"
+}
+
+osascript -e "tell application \"Terminal\" to set background color of window 1 to {50000,50000,50000,50000}"
