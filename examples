@@ -1,0 +1,8 @@
+class A
+  def sing(arg)
+    sing_to(arg)
+  end
+
+  define_method(:barney, instance_method(:sing))
+  end
+end
