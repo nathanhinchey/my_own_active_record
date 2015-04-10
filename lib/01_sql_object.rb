@@ -4,6 +4,7 @@ require 'active_support/inflector'
 # of this project. It was only a warm up.
 
 class SQLObject
+
   def self.columns
     columns_query = <<-SQL
       SELECT
@@ -73,6 +74,7 @@ class SQLObject
   end
 
   def initialize(params = {})
+    params = turn_string_keys_to_sym(params)
     all_columns = self.class.columns
     params.each do |attr_name,attr_value|
       unless all_columns.include?(attr_name.to_sym)
@@ -81,6 +83,15 @@ class SQLObject
 
       attributes.merge!(params)
     end
+  end
+
+  def turn_string_keys_to_sym(hash_with_string_keys)
+    hash_with_sym_keys = {}
+    hash_with_string_keys.each do |key, value|
+      hash_with_sym_keys[key.to_sym] = value
+    end
+
+    hash_with_sym_keys
   end
 
   def attributes
