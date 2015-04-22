@@ -66,10 +66,10 @@ class SQLObject
       FROM
         #{table_name}
       WHERE
-        id = #{id}
+        id = ?
     SQL
 
-    result = DBConnection.execute(find_query)
+    result = DBConnection.execute(find_query, id)
     parse_all(result).first
   end
 
@@ -128,10 +128,10 @@ class SQLObject
       SET
         #{cols_with_question_marks}
       WHERE
-        id = #{self.id}
+        id = ?
     SQL
 
-    DBConnection.execute(update_query, *attribute_values)
+    DBConnection.execute(update_query, *attribute_values, self.id)
   end
 
   def save
