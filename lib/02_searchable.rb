@@ -21,9 +21,9 @@ module Searchable
     results = DBConnection.execute(where_query, *vals)
     [].tap do |objects|
       results.each do |result|
-        p result
+
         objects << self.new(result)
-        p objects.last
+
       end
     end
   end
